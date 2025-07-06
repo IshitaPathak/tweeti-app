@@ -361,6 +361,10 @@ async function fetchCommitDetails(repoFullName, commitSha, installationId) {
 }
 
 // Main webhook handler
+app.get('/', (req, res) => {
+    res.send('Welcome to the GitHub App Twitter Bot! Use the /webhook endpoint to receive GitHub events.');
+});
+
 app.post('/webhook', async (req, res) => {
     console.log('🔔 Webhook received at:', new Date().toISOString());
     console.log('📋 Headers:', {
