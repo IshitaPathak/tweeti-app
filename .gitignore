@@ -7,4 +7,4 @@ dist/
 coverage/
 /src/generated/prisma
 .history 
-mk3_tweeti_gapp/tweetiii.2025-07-06.private-key.pem
+tweetiii.2025-07-06.private-key.pem
