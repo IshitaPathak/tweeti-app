@@ -188,12 +188,13 @@ async function analyzeCommit(commit, repository) {
     };
 
     // Create comprehensive prompt for LLM
-    const prompt = `You are an expert Twitter copywriter specializing in writing high-performing developer tweets.
+ 
+    const prompt1 = `You are an expert Twitter copywriter specializing in writing high-performing developer tweets.
 
     Your task: Given the Git commit context below, write a **compelling tweet** that mirrors the style, structure, and energy of the examples.
     
     🔒 STRICT RULES (Must be followed):
-    - Length: UNDER 240 characters
+    - Length: UNDER 200 characters
     - Tone: Human, witty, punchy — **not AI-generated**
     - Format: Follow the structure below EXACTLY
     - Use power verbs like: shipped, crushed, unleashed, crafted, revolutionized, upgraded
@@ -206,20 +207,23 @@ async function analyzeCommit(commit, repository) {
     
     🔧 COMMIT CONTEXT:
     Project: ${commitContext.repository}  
-    Commit Message: "${commitContext.message}"  
+    Commit Message: "${commitContext.message}"      // Yeh data aapke database me store hota hai (x_credentials table)
+    github_username | access_token              | access_secret
+    ----------------|---------------------------|------------------
+    user1          | user1_specific_token      | user1_secret
+    user2          | user2_specific_token      | user2_secret
     Author: ${commitContext.author}  
     Commit Type: ${commitContext.commitType}
     
     ---
-    💡EXAMPLE — Your tweet MUST match this tone & structure:
-    📦 Refactored: The dashboard was a monster.  
+    EXAMPLE — Your tweet MUST match this tone & structure:
+    Refactored: The dashboard was a monster.  
     Split it into clean, modular components.  
     
     ✅ 20% faster load  
     ✅ Much easier to maintain  
     ✅ Dev sanity restored  
     
-    Next step: reusable analytics blocks for other pages.
     ---
     
     🚫 DO NOT:
@@ -231,27 +235,53 @@ async function analyzeCommit(commit, repository) {
     ✅ GOAL: Write a tweet a real dev would post and real devs would share.
     
     Now, generate a tweet.
-    `;
+    `;    
+
+    const prompt2 = `You are a social media manager for a tech company, tasked with creating engaging tweets based on GitHub commit messages. Your goal is to translate technical updates into relatable content for both developers and general tech enthusiasts, while maintaining authenticity and genuine enthusiasm for the work being done.
+
+    Your task: Given the Git commit context below, write a **compelling tweet** that mirrors the style, structure, and energy of the examples.
+
+    To create an effective and authentic tweet, follow these steps:
+    1. Carefully read and understand the commit message.
+    2. Keep the tweet concise (maximum 200 characters). This is strict rule dont exceed this limit.
+    3. Identify the main point of the update and its significance for developers and users.
+    4. Translate the technical information into casual, conversational language that a developer would use when excitedly sharing their work with peers.
+    5. Add a touch of humor or personality where appropriate, but maintain the genuine enthusiasm a developer would have for their work.
+    7. Use bullet points (✅, •, etc.) when you want to emphasize key technical improvements or achievements.
+    8. Write as if you're a developer sharing an exciting update with fellow tech nthusiasts.
+    9. Use natural, colloquial expressions that real developers would use in everyday conversation.
+    10. Avoid overly casual or forced humor that might undermine the importance of the update.
+    11. Ensure that the content is interesting and relevant to your target audience of developers and tech enthusiasts.
+    12. Avoid cluttered or overly “hype” language (like “BOOM”, “HUGE”). Keep it natural, balanced, and developer-friendly. Focus on clarity over excitement.
+    13. Tag @arweaveIndia at the last after a line break.
+
+
+    ---
     
+    🔧 COMMIT CONTEXT:
+    Project: ${commitContext.repository}  
+    Commit Message: "${commitContext.message}"      // Yeh data aapke database me store hota hai (x_credentials table)
+    github_username | access_token              | access_secret
+    ----------------|---------------------------|------------------
+    user1          | user1_specific_token      | user1_secret
+    user2          | user2_specific_token      | user2_secret
+    Author: ${commitContext.author}  
+    Commit Type: ${commitContext.commitType}
+  
+    Remember, the goal is to create a tweet that feels like it's coming from a real developer who is genuinely excited about the work they've done. Make it informative yet engaging, and relatable to both fellow developers and general tech enthusiasts. Focus on why this update matters and how it improves the product or user experience.
 
-//     const prompt = `You are a social media manager for a tech product.
-// Given the following code update details, write a short, engaging tweet for end users (not developers):
+    Now, generate a tweet.
+‘
+    `;
+    const prompts = [prompt1, prompt2];
 
-// ${commitContext.message}
+    // Randomly select a prompt
+    const selectedPrompt = prompts[Math.floor(Math.random() * prompts.length)];
+    console.log(`Using prompt template ${prompts.indexOf(selectedPrompt) + 1}`);
 
-// Instructions:
-// - Summarize the update in simple, friendly language.
-// - Highlight how this change benefits or impacts users.
-// - Use a conversational tone, add only relevant emojis.
-// - If possible, mention the type of update (feature, bug fix, improvement, etc.).
-// - End with a question or call to action to encourage engagement.
-// - Make sure to frame tweet such that it is 280 characters or less.
-// - Add a line break before tagging people.
-// - Always tag @arweaveindia and @ropats16 at the end.
-// `;
     try {
-        // Generate tweet using LLM
-        const tweetContent = await generateTweet(prompt);
+        // Generate tweet using LLM with selected prompt
+        const tweetContent = await generateTweet(selectedPrompt);
         console.log("this is the tweet generated from the llm ->", tweetContent)
         return tweetContent;
 
